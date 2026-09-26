@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Test WebSocket</title>
+</head>
+
+<body>
+
+    <h1>Eventos recibidos</h1>
+
+    <pre id="events"></pre>
+
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+
+    <script>
+        const socket = io("http://localhost:8765");
+
+        const events = document.getElementById("events");
+
+        socket.on("connect", () => {
+            console.log("Conectado:", socket.id);
+        });
+
+        socket.on("delivery-location", (event) => {
+            console.log("Ubicación recibida:", event);
+
+            events.textContent +=
+                JSON.stringify(event, null, 2) + "\n\n";
+        });
+    </script>
+
+</body>
+</html>
