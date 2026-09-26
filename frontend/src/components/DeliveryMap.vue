@@ -12,8 +12,6 @@ let map: L.Map | null = null
 let marker: L.Marker | null = null
 let socket: Socket | null = null
 
-let animationFrame: number | null = null
-
 const initialPosition: L.LatLngExpression = [
   -34.6037,
   -58.3816,
@@ -98,77 +96,14 @@ function updateMarker(
     return
   }
 
-  const currentPosition = marker.getLatLng()
-
-  animateMarker(
-    currentPosition,
-    newPosition,
-    location,
-  )
-}
-
-function animateMarker(
-  from: L.LatLng,
-  to: L.LatLng,
-  location: DeliveryLocation,
-): void {
-  if (!marker || !map) {
-    return
-  }
-
-  if (animationFrame !== null) {
-    cancelAnimationFrame(animationFrame)
-  }
-
-  const duration = 1800
-  const start = performance.now()
-
-  function animate(
-    currentTime: number,
-  ): void {
-    if (!marker || !map) {
-      return
-    }
-
-    const elapsed =
-      currentTime - start
-
-    const progress = Math.min(
-      elapsed / duration,
-      1,
-    )
-
-    const easedProgress =
-      progress < 0.5
-        ? 2 * progress * progress
-        : 1 -
-          Math.pow(
-            -2 * progress + 2,
-            2,
-          ) / 2
-
-    const lat =
-      from.lat +
-      (to.lat - from.lat) *
-        easedProgress
-
-    const lng =
-      from.lng +
-      (to.lng - from.lng) *
-        easedProgress
-
-    marker.setLatLng(
-      L.latLng(lat, lng),
-    )
-
-    if (progress < 1) {
-      animationFrame =
-        requestAnimationFrame(animate)
-    }
-  }
-
-  animationFrame =
-    requestAnimationFrame(animate)
+  /*
+   * Actualización instantánea.
+   *
+   * El marcador pasa directamente
+   * de una posición a la siguiente
+   * sin animación de desplazamiento.
+   */
+  marker.setLatLng(newPosition)
 
   marker.setPopupContent(
     createPopupContent(location),
@@ -262,10 +197,6 @@ function createPopupContent(
 onUnmounted(() => {
   socket?.disconnect()
 
-  if (animationFrame !== null) {
-    cancelAnimationFrame(animationFrame)
-  }
-
   map?.remove()
 })
 </script>
@@ -355,7 +286,8 @@ onUnmounted(() => {
    POPUP
 ========================= */
 
-.delivery-popup-container .leaflet-popup-content-wrapper {
+.delivery-popup-container
+  .leaflet-popup-content-wrapper {
   padding: 0;
 
   border-radius: 16px;
@@ -366,17 +298,20 @@ onUnmounted(() => {
     0 10px 30px rgba(15, 23, 42, 0.18);
 }
 
-.delivery-popup-container .leaflet-popup-content {
+.delivery-popup-container
+  .leaflet-popup-content {
   margin: 0;
 
   width: auto !important;
 }
 
-.delivery-popup-container .leaflet-popup-tip {
+.delivery-popup-container
+  .leaflet-popup-tip {
   box-shadow: none;
 }
 
-.delivery-popup-container .leaflet-popup-close-button {
+.delivery-popup-container
+  .leaflet-popup-close-button {
   z-index: 10;
 
   top: 10px !important;
@@ -409,8 +344,6 @@ onUnmounted(() => {
 
   color: #0f172a !important;
 }
-
-/* Contenido */
 
 .delivery-popup {
   width: 260px;
